@@ -1,0 +1,30 @@
+# Pe server: ~/proiecte/landing/docker-compose.yml
+# Deploy:   TAG=<sha> docker compose pull && TAG=<sha> docker compose up -d
+# Rollback: TAG=<sha-vechi> docker compose up -d
+
+services:
+  landing-frontend:
+    image: ghcr.io/oti404/otnielcodes-landing:${TAG:-latest}
+    container_name: landing-frontend
+    restart: unless-stopped
+    mem_limit: 64m
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      # 127.0.0.1 în loc de localhost: pe Alpine, localhost poate rezolva la ::1, unde nginx nu ascultă.
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # Fără ports: traficul intră doar prin Caddy, pe rețeaua caddy_default.
+    networks:
+      caddy_default:
+        aliases: [landing-frontend]
+
+networks:
+  caddy_default:
+    external: true

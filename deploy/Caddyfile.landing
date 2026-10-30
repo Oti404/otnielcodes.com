@@ -1,0 +1,5 @@
+# De adăugat în Caddyfile-ul existent pe server.
+otnielcodes.com, www.otnielcodes.com {
+	encode gzip zstd
+	reverse_proxy landing-frontend:8080
+}

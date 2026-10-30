@@ -1,0 +1,32 @@
+@let p = project();
+<article class="card">
+  @if (p.image) {
+    <img class="card__image" [src]="p.image" alt="Captură de ecran din {{ p.name }}" width="640" height="360" loading="lazy" decoding="async" />
+  }
+
+  <div class="card__body">
+    <h3 class="card__title">{{ p.name }}</h3>
+    <p class="card__description">{{ p.description }}</p>
+
+    @if (p.technologies.length) {
+      <ul class="card__tags" aria-label="Tehnologii">
+        @for (tech of p.technologies; track tech) {
+          <li>{{ tech }}</li>
+        }
+      </ul>
+    }
+
+    <div class="card__links">
+      @if (p.liveUrl) {
+        <a class="btn btn--primary" [href]="p.liveUrl" target="_blank" rel="noopener noreferrer">
+          Vezi live<span class="visually-hidden">: {{ p.name }} (se deschide într-o filă nouă)</span>
+        </a>
+      }
+      @if (p.repoUrl) {
+        <a class="btn" [href]="p.repoUrl" target="_blank" rel="noopener noreferrer">
+          Cod sursă<span class="visually-hidden">: {{ p.name }} (se deschide într-o filă nouă)</span>
+        </a>
+      }
+    </div>
+  </div>
+</article>

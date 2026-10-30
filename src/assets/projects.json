@@ -1,0 +1,10 @@
+[
+  {
+    "name": "car-world-mhp",
+    "description": "Aplicație web full-stack pentru lumea auto: catalog, căutare și conturi de utilizator.",
+    "technologies": ["Angular", "Node.js", "PostgreSQL"],
+    "liveUrl": "https://carworld.otnielcodes.com",
+    "repoUrl": "https://github.com/Oti404/car-world",
+    "image": null
+  }
+]
