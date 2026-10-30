@@ -1,0 +1,45 @@
+name: Status proiecte
+
+# Verifică periodic liveUrl-urile din projects.json și publică status.json pe branch-ul "status"
+# (un singur commit, suprascris de fiecare dată). Nu declanșează deploy-uri și nu atinge serverul.
+# Notă: GitHub dezactivează workflow-urile programate după 60 de zile fără activitate în repo.
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: status
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verifică proiectele
+        run: |
+          mkdir -p out
+          node .github/scripts/check-status.mjs > out/status.json
+
+      - name: Publică pe branch-ul status
+        working-directory: out
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git init -q -b status
+          git add status.json
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "status $(date -u +%FT%TZ)"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" HEAD:status

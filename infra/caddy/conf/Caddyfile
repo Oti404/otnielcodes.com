@@ -1,0 +1,8 @@
+# Montat pe server ca director: ~/proiecte/caddy/conf -> /etc/caddy (read-only).
+# Aici stau DOAR opțiunile globale (momentan niciuna). Fiecare site are fișierul lui în sites/<nume>.caddy.
+#
+# ATENȚIE: deploy-ul suprascrie acest fișier cu versiunea din repo. Dacă versiunea de pe
+# server diferă, workflow-ul afișează diff-ul ca avertisment și păstrează o copie
+# în ~/proiecte/caddy/conf.backups/ înainte de înlocuire.
+
+import /etc/caddy/sites/*.caddy

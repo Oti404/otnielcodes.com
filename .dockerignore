@@ -5,7 +5,8 @@ dist
 .github
 .vscode
 .idea
-deploy
+infra
+scripts
 *.md
 docker-compose.yml
 Dockerfile

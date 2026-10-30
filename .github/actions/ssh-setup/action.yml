@@ -1,0 +1,46 @@
+name: SSH setup
+description: Configurează alias-ul SSH "deploy" cu cheia de deploy și verificare strictă a host key-ului.
+
+inputs:
+  host:
+    required: true
+  user:
+    required: true
+  key:
+    required: true
+  known_hosts:
+    description: Linia/liniile din `ssh-keyscan -t ed25519 <host>`, verificate față de fingerprint-ul serverului.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        SSH_HOST: ${{ inputs.host }}
+        SSH_USER: ${{ inputs.user }}
+        SSH_KEY: ${{ inputs.key }}
+        SSH_KNOWN_HOSTS: ${{ inputs.known_hosts }}
+      run: |
+        set -euo pipefail
+        for v in SSH_HOST SSH_USER SSH_KEY SSH_KNOWN_HOSTS; do
+          if [ -z "${!v}" ]; then
+            echo "::error::Secretul $v lipsește. Vezi README, secțiunea „Secrete GitHub”."
+            exit 1
+          fi
+        done
+        install -m 700 -d ~/.ssh
+        printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        cat > ~/.ssh/config <<EOF
+        Host deploy
+          HostName $SSH_HOST
+          User $SSH_USER
+          IdentityFile ~/.ssh/deploy_key
+          IdentitiesOnly yes
+          StrictHostKeyChecking yes
+          UserKnownHostsFile ~/.ssh/known_hosts
+          ServerAliveInterval 15
+        EOF
+        ssh deploy true

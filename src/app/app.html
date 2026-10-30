@@ -40,7 +40,13 @@
         @if (state.status === 'ready') {
           <ul class="projects__grid">
             @for (project of state.projects; track project.name) {
-              <li><app-project-card [project]="project" /></li>
+              <li>
+                <app-project-card
+                  [project]="project"
+                  [check]="status()?.projects?.[project.name] ?? null"
+                  [checkedAt]="status()?.checkedAt ?? null"
+                />
+              </li>
             } @empty {
               <li class="projects__status">Încă nu există proiecte publicate.</li>
             }

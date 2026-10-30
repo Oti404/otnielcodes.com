@@ -1,0 +1,5 @@
+# Scripturile și configurațiile rulate pe Linux rămân cu LF și pe Windows.
+*.sh text eol=lf
+*.caddy text eol=lf
+Caddyfile text eol=lf
+*.yml text eol=lf

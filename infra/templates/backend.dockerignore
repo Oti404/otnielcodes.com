@@ -1,0 +1,5 @@
+# server/.dockerignore pentru imaginea backend.
+node_modules
+.env
+uploads
+*.md

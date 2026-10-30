@@ -10,6 +10,8 @@
   --accent: #0b6e4f; /* 6.2:1 pe --bg */
   --accent-contrast: #ffffff;
   --focus: #0b6e4f;
+  --ok: #0b6e4f;
+  --danger: #b42318; /* 6.6:1 pe --surface */
 
   --radius: 0.75rem;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -27,6 +29,8 @@
   --accent: #4fd1a5; /* 10:1 pe --bg */
   --accent-contrast: #0b1f18;
   --focus: #4fd1a5;
+  --ok: #4fd1a5;
+  --danger: #ff8a7a; /* 7.5:1 pe --surface */
 }
 
 @media (prefers-color-scheme: dark) {

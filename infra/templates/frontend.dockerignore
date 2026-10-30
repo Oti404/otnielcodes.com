@@ -1,0 +1,10 @@
+# .dockerignore (rădăcina repo-ului proiectului) pentru imaginea frontend.
+node_modules
+dist
+.angular
+.git
+.github
+server
+.env
+**/.env
+*.md

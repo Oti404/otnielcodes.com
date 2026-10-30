@@ -5,6 +5,7 @@
     "technologies": ["Angular", "Node.js", "PostgreSQL"],
     "liveUrl": "https://carworld.otnielcodes.com",
     "repoUrl": "https://github.com/Oti404/car-world",
-    "image": null
+    "image": null,
+    "status": "live"
   }
 ]

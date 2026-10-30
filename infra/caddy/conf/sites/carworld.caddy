@@ -1,0 +1,13 @@
+# car-world: repo Oti404/car-world, imagini ghcr.io/oti404/car-world-*, server ~/proiecte/carworld
+# Identic cu blocul din Caddyfile-ul de pe server de dinainte de migrare (fără compresie).
+carworld.otnielcodes.com {
+	handle /api/* {
+		reverse_proxy carworld-backend:3000
+	}
+	handle /uploads/* {
+		reverse_proxy carworld-backend:3000
+	}
+	handle {
+		reverse_proxy carworld-frontend:80
+	}
+}

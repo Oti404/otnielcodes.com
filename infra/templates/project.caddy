@@ -1,0 +1,15 @@
+# __NAME__: repo Oti404/__REPO__, imagini ghcr.io/oti404/__REPO__-*, server ~/proiecte/__NAME__ (porturi __PORTS__)
+# Porturile de mai jos sunt cele INTERNE ale containerelor (nginx-unprivileged 8080, API 3000).
+__SUBDOMAIN__.otnielcodes.com {
+	encode gzip zstd
+
+	handle /api/* {
+		reverse_proxy __NAME__-backend:3000
+	}
+	handle /uploads/* {
+		reverse_proxy __NAME__-backend:3000
+	}
+	handle {
+		reverse_proxy __NAME__-frontend:8080
+	}
+}

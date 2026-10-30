@@ -5,6 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Un singur deploy pe server la un moment dat; cele noi așteaptă, nu le anulează pe cele în curs.
 concurrency:
   group: deploy-production
   cancel-in-progress: false
@@ -13,7 +14,40 @@ env:
   IMAGE: ghcr.io/oti404/otnielcodes-landing
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      landing: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.landing == 'true' }}
+      caddy: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.caddy == 'true' }}
+      scripts: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.scripts == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: github.event_name == 'push'
+        with:
+          filters: |
+            landing:
+              - 'src/**'
+              - 'public/**'
+              - 'nginx/**'
+              - 'Dockerfile'
+              - '.dockerignore'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'angular.json'
+              - 'tsconfig*.json'
+              - 'docker-compose.yml'
+            caddy:
+              - 'infra/caddy/**'
+            scripts:
+              - 'infra/scripts/**'
+
   build:
+    needs: changes
+    if: needs.changes.outputs.landing == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -43,18 +77,81 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  deploy:
+  deploy-landing:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: appleboy/ssh-action@v1
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/ssh-setup
         with:
           host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
+          user: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          script: |
-            set -e
-            cd ~/proiecte/landing
-            TAG=${{ github.sha }} docker compose pull
-            TAG=${{ github.sha }} docker compose up -d
-            docker image prune -f
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Copiază docker-compose.yml pe server
+        run: |
+          ssh deploy 'mkdir -p ~/proiecte/landing'
+          rsync -av docker-compose.yml deploy:proiecte/landing/docker-compose.yml
+
+      - name: Pull + up
+        run: |
+          ssh deploy 'bash -s' <<'EOF'
+          set -euo pipefail
+          cd ~/proiecte/landing
+          export TAG=${{ github.sha }}
+          docker compose pull
+          docker compose up -d --wait --wait-timeout 90
+          docker image prune -f
+          docker compose ps
+          EOF
+
+  deploy-caddy:
+    needs: changes
+    if: needs.changes.outputs.caddy == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/ssh-setup
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          user: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      # conf.next/ e doar o zonă de staging; --delete aici nu atinge configurația live.
+      # În conf/ live, apply-conf.sh șterge doar din sites/ și face backup la Caddyfile.
+      - name: Urcă configurația în staging
+        run: |
+          ssh deploy 'mkdir -p ~/proiecte/caddy/conf.next'
+          rsync -av --delete infra/caddy/conf/ deploy:proiecte/caddy/conf.next/
+
+      - name: Validează și aplică
+        run: ssh deploy 'bash -s' < infra/caddy/apply-conf.sh
+
+  sync-scripts:
+    needs: changes
+    if: needs.changes.outputs.scripts == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/ssh-setup
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          user: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Copiază scripturile în ~/proiecte/scripts
+        run: |
+          ssh deploy 'mkdir -p ~/proiecte/scripts'
+          rsync -av --chmod=F755 infra/scripts/ deploy:proiecte/scripts/

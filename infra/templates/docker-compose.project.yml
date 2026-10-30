@@ -1,0 +1,83 @@
+# docker-compose.yml pentru repo-ul proiectului (deploy-ul îl copiază în ~/proiecte/__NAME__/).
+#   __NAME__  numele scurt: folder pe server, alias-uri, subdomeniu, volume (ex. carworld)
+#   __REPO__  numele repo-ului GitHub, folosit pentru imagini (ex. car-world)
+#
+# Reguli: fără "ports" publice (Caddy ajunge prin caddy_default); alias-uri unice
+# __NAME__-frontend / __NAME__-backend; db doar pe rețeaua internă; mem_limit peste tot
+# (serverul are 1 GiB); healthcheck pe 127.0.0.1. Parolele stau în .env (chmod 600), nu în Git.
+#
+# Deploy:   TAG=<sha> docker compose pull && TAG=<sha> docker compose up -d
+# Rollback: TAG=<sha-vechi> docker compose up -d
+
+services:
+  frontend:
+    image: ghcr.io/oti404/__REPO__-frontend:${TAG:-latest}
+    restart: unless-stopped
+    mem_limit: 64m
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      caddy_default:
+        aliases: [__NAME__-frontend]
+
+  backend:
+    image: ghcr.io/oti404/__REPO__-backend:${TAG:-latest}
+    restart: unless-stopped
+    mem_limit: 192m
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-__NAME__}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-__NAME__}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      # Imaginea node:*-slim nu are wget/curl; backend-ul TREBUIE să aibă GET /api/health.
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      internal:
+      caddy_default:
+        aliases: [__NAME__-backend]
+
+  db:
+    image: postgres:16.10-alpine3.22
+    restart: unless-stopped
+    mem_limit: 160m
+    # Setări pentru RAM puțin.
+    command: ["postgres", "-c", "shared_buffers=32MB", "-c", "max_connections=20", "-c", "work_mem=2MB"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-__NAME__}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-__NAME__}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - internal
+
+# backup.sh găsește automat: serviciul "db" și volumul "__NAME___uploads".
+volumes:
+  db-data:
+  uploads:
+
+networks:
+  internal:
+    internal: true
+  caddy_default:
+    external: true

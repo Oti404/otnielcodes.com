@@ -5,7 +5,27 @@
   }
 
   <div class="card__body">
-    <h3 class="card__title">{{ p.name }}</h3>
+    <div class="card__head">
+      <h3 class="card__title">{{ p.name }}</h3>
+      @if (statusLabel(); as label) {
+        <span class="card__badge" [attr.data-status]="p.status">{{ label }}</span>
+      }
+    </div>
+
+    @if (check(); as c) {
+      <p
+        class="card__live"
+        [class.card__live--down]="!c.up"
+        [attr.title]="checkedAt() ? 'Verificat la ' + (checkedAt() | date: 'dd.MM.yyyy HH:mm') : null"
+      >
+        <span class="card__dot" aria-hidden="true"></span>
+        {{ c.up ? 'Online' : 'Indisponibil' }}
+        @if (checkedAt()) {
+          <span class="visually-hidden">, verificat la {{ checkedAt() | date: 'dd.MM.yyyy HH:mm' }}</span>
+        }
+      </p>
+    }
+
     <p class="card__description">{{ p.description }}</p>
 
     @if (p.technologies.length) {
