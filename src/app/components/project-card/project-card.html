@@ -1,5 +1,5 @@
 @let p = project();
-<article class="card">
+<article class="card" [class.card--wip]="p.status === 'wip'">
   @if (p.image) {
     <img class="card__image" [src]="p.image" alt="Captură de ecran din {{ p.name }}" width="640" height="360" loading="lazy" decoding="async" />
   }
@@ -7,24 +7,25 @@
   <div class="card__body">
     <div class="card__head">
       <h3 class="card__title">{{ p.name }}</h3>
-      @if (statusLabel(); as label) {
-        <span class="card__badge" [attr.data-status]="p.status">{{ label }}</span>
-      }
-    </div>
-
-    @if (check(); as c) {
-      <p
-        class="card__live"
-        [class.card__live--down]="!c.up"
-        [attr.title]="checkedAt() ? 'Verificat la ' + (checkedAt() | date: 'dd.MM.yyyy HH:mm') : null"
-      >
-        <span class="card__dot" aria-hidden="true"></span>
-        {{ c.up ? 'Online' : 'Indisponibil' }}
-        @if (checkedAt()) {
-          <span class="visually-hidden">, verificat la {{ checkedAt() | date: 'dd.MM.yyyy HH:mm' }}</span>
+      <div class="card__meta">
+        @if (statusLabel(); as label) {
+          <span class="card__badge" [attr.data-status]="p.status">{{ label }}</span>
         }
-      </p>
-    }
+        @if (check(); as c) {
+          <span
+            class="card__live"
+            [class.card__live--down]="!c.up"
+            [attr.title]="checkedAt() ? 'Verificat la ' + (checkedAt() | date: 'dd.MM.yyyy HH:mm') : null"
+          >
+            <span class="card__dot" aria-hidden="true"></span>
+            {{ c.up ? 'online' : 'indisponibil' }}
+            @if (checkedAt()) {
+              <span class="visually-hidden">, verificat la {{ checkedAt() | date: 'dd.MM.yyyy HH:mm' }}</span>
+            }
+          </span>
+        }
+      </div>
+    </div>
 
     <p class="card__description">{{ p.description }}</p>
 
@@ -38,8 +39,8 @@
 
     <div class="card__links">
       @if (p.liveUrl) {
-        <a class="btn btn--primary" [href]="p.liveUrl" target="_blank" rel="noopener noreferrer">
-          Vezi live<span class="visually-hidden">: {{ p.name }} (se deschide într-o filă nouă)</span>
+        <a class="btn btn--live" [href]="p.liveUrl" target="_blank" rel="noopener noreferrer">
+          Live<span class="visually-hidden">: {{ p.name }} (se deschide într-o filă nouă)</span>
         </a>
       }
       @if (p.repoUrl) {

@@ -1,36 +1,70 @@
+/*
+ * Stil preluat din portofoliu (otniel-iacob.com): Orbitron pentru titluri și butoane,
+ * Rajdhani pentru etichete și titlurile cardurilor, Segoe UI pentru text, Consolas pentru
+ * badge-uri și tag-uri; fundal întunecat cu grilă subtilă, carduri „glass” și accente neon.
+ * Tema întunecată e cea a portofoliului; tema luminoasă folosește aceleași nuanțe,
+ * închise la culoare cât să aibă contrast pe alb.
+ */
+
 /* ---------- Tokens ---------- */
 :root {
   color-scheme: light;
-  --bg: #fafaf9;
-  --surface: #ffffff;
-  --surface-muted: #f0f0ee;
-  --text: #1c1c1a;
-  --text-muted: #55554f; /* 7.3:1 pe --bg */
-  --border: #dcdcd7;
-  --accent: #0b6e4f; /* 6.2:1 pe --bg */
-  --accent-contrast: #ffffff;
-  --focus: #0b6e4f;
-  --ok: #0b6e4f;
-  --danger: #b42318; /* 6.6:1 pe --surface */
+  --bg: #eef3f8;
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-muted: rgba(15, 23, 42, 0.04);
+  --text: #0b1120;
+  --text-muted: #475569;
+  --text-desc: #334155;
+  --border: rgba(15, 23, 42, 0.12);
+  --border-strong: rgba(15, 23, 42, 0.28);
+  --grid-line: rgba(15, 23, 42, 0.05);
+  --glow-bg: rgba(37, 99, 235, 0.1);
 
-  --radius: 0.75rem;
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', Menlo, Consolas, monospace;
+  --accent: #007a85;
+  --accent-contrast: #ffffff;
+  --accent-glow: rgba(0, 122, 133, 0.25);
+  --neon-pink: #a3009f;
+  --neon-green: #047857;
+  --neon-amber: #9a5b00;
+  --neon-purple: #7a1fc2;
+  --focus: #007a85;
+  --ok: #047857;
+  --danger: #b42318;
+  --title-from: #0b1120;
+  --title-to: #007a85;
+
+  --radius: 16px;
+  --font-display: 'Orbitron', 'Segoe UI', system-ui, sans-serif;
+  --font-label: 'Rajdhani', 'Segoe UI', system-ui, sans-serif;
+  --font-sans: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: Consolas, ui-monospace, 'Cascadia Code', Menlo, monospace;
 }
 
 @mixin dark-tokens {
   color-scheme: dark;
-  --bg: #121211;
-  --surface: #1b1b19;
-  --surface-muted: #262624;
-  --text: #ededea;
-  --text-muted: #a9a9a2; /* 8:1 pe --bg */
-  --border: #33332f;
-  --accent: #4fd1a5; /* 10:1 pe --bg */
-  --accent-contrast: #0b1f18;
-  --focus: #4fd1a5;
-  --ok: #4fd1a5;
-  --danger: #ff8a7a; /* 7.5:1 pe --surface */
+  --bg: #0a0e17;
+  --surface: rgba(255, 255, 255, 0.03);
+  --surface-muted: rgba(255, 255, 255, 0.05);
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-desc: #b0c4de;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --grid-line: rgba(255, 255, 255, 0.05);
+  --glow-bg: rgba(37, 99, 235, 0.15);
+
+  --accent: #00f3ff;
+  --accent-contrast: #000000;
+  --accent-glow: rgba(0, 243, 255, 0.4);
+  --neon-pink: #ff00ff;
+  --neon-green: #00ff88;
+  --neon-amber: #ffae00;
+  --neon-purple: #c552ff; /* #bc13fe din portofoliu, deschis pentru contrast AA la text mic */
+  --focus: #00f3ff;
+  --ok: #00ff88;
+  --danger: #ff6b81;
+  --title-from: #ffffff;
+  --title-to: #00f3ff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -53,6 +87,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-padding-top: 1rem;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -62,13 +97,43 @@ html {
 }
 
 body {
+  position: relative;
   margin: 0;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 1rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Grila subtilă din portofoliu, estompată spre margini. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(circle at center, #000 40%, transparent 100%);
+}
+
+/* Strălucirea albastră din colțul dreapta-sus. */
+body::after {
+  content: '';
+  position: fixed;
+  top: -50vmax;
+  right: -50vmax;
+  z-index: -1;
+  width: 100vmax;
+  height: 100vmax;
+  pointer-events: none;
+  /* Pătrat + closest-side: gradientul se stinge complet înainte de marginea elementului. */
+  background: radial-gradient(circle closest-side, var(--glow-bg) 0%, transparent 100%);
 }
 
 a {
@@ -82,14 +147,33 @@ code {
 }
 
 :focus-visible {
-  outline: 3px solid var(--focus);
+  outline: 2px solid var(--focus);
   outline-offset: 3px;
   border-radius: 4px;
 }
 
+::selection {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #2563eb;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
 .container {
   width: 100%;
-  max-width: 72rem;
+  max-width: 75rem;
   margin-inline: auto;
   padding-inline: 1rem;
 
@@ -98,33 +182,108 @@ code {
   }
 }
 
-/* ---------- Butoane (folosite în hero și carduri) ---------- */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  padding: 0.5rem 1.125rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface);
+/* Titlu de secțiune: Orbitron, majuscule, linie gradient cyan → magenta. */
+.section-title {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 3rem;
   color: var(--text);
-  font-weight: 600;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 
-  &:hover {
-    border-color: var(--accent);
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--neon-pink));
+    box-shadow: 0 0 10px var(--accent-glow);
+    transition: width 0.3s ease;
+  }
+
+  &:hover::after {
+    width: 100%;
   }
 }
 
-.btn--primary {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--accent-contrast);
+/* ---------- Butoane ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: all 0.3s ease;
 
   &:hover {
-    filter: brightness(1.08);
+    border-color: var(--text);
+    background: var(--surface-muted);
+    color: var(--text);
+  }
+}
+
+/* „Neon”: contur cyan cu glow, se umple la hover. */
+.btn--primary {
+  border-color: var(--accent);
+  color: var(--accent);
+  text-transform: uppercase;
+  box-shadow: 0 0 5px var(--accent-glow), inset 0 0 5px var(--accent-glow);
+
+  &:hover {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--accent-contrast);
+    box-shadow: 0 0 20px var(--accent-glow), inset 0 0 10px var(--accent-glow);
+  }
+}
+
+/* „Live”: verde neon, cu punct care pulsează. */
+.btn--live {
+  border-color: var(--neon-green);
+  background: color-mix(in srgb, var(--neon-green) 6%, transparent);
+  color: var(--neon-green);
+
+  &::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  &:hover {
+    border-color: var(--neon-green);
+    background: var(--neon-green);
+    color: var(--bg);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--neon-green) 40%, transparent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &::before {
+      animation: live-pulse 1.5s infinite;
+    }
+  }
+}
+
+@keyframes live-pulse {
+  50% {
+    opacity: 0.3;
   }
 }
 
@@ -147,13 +306,24 @@ code {
   left: 0.5rem;
   z-index: 10;
   padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+  border-radius: 6px;
   background: var(--accent);
   color: var(--accent-contrast);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
   transform: translateY(-200%);
 
   &:focus {
     transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
   }
 }

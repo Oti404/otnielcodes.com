@@ -7,8 +7,10 @@
 
 <main>
   <section class="hero container" aria-labelledby="hero-title">
-    <p class="hero__eyebrow">Catalog de proiecte</p>
-    <h1 id="hero-title" class="hero__title">Aplicații construite și găzduite de Otniel Iacob.</h1>
+    <p class="hero__eyebrow">// catalog de proiecte</p>
+    <h1 id="hero-title" class="hero__title">
+      Aplicații construite de <span class="hero__name">Otniel Iacob</span>
+    </h1>
     <p class="hero__lead">
       Fiecare proiect de aici rulează live pe un subdomeniu <code>otnielcodes.com</code>.
       Alege unul și încearcă-l, sau aruncă o privire în cod.
@@ -24,7 +26,7 @@
   </section>
 
   <section id="proiecte" class="projects container" aria-labelledby="projects-title" tabindex="-1">
-    <h2 id="projects-title" class="projects__title">Proiecte</h2>
+    <h2 id="projects-title" class="section-title">Proiecte</h2>
 
     @switch (projects().status) {
       @case ('loading') {
@@ -57,20 +59,23 @@
   </section>
 </main>
 
-<footer class="site-footer container">
-  <p>© {{ year }} Otniel Iacob</p>
-  <nav aria-label="Linkuri externe">
-    <ul>
-      <li>
-        <a [href]="links.site" target="_blank" rel="noopener noreferrer">
-          otniel-iacob.com<span class="visually-hidden"> (se deschide într-o filă nouă)</span>
-        </a>
-      </li>
-      <li>
-        <a [href]="links.github" target="_blank" rel="noopener noreferrer">
-          github.com/Oti404<span class="visually-hidden"> (se deschide într-o filă nouă)</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <p class="site-footer__brand">otnielcodes<span>.com</span></p>
+    <nav aria-label="Linkuri externe">
+      <ul>
+        <li>
+          <a [href]="links.site" target="_blank" rel="noopener noreferrer">
+            otniel-iacob.com<span class="visually-hidden"> (se deschide într-o filă nouă)</span>
+          </a>
+        </li>
+        <li>
+          <a [href]="links.github" target="_blank" rel="noopener noreferrer">
+            github.com/Oti404<span class="visually-hidden"> (se deschide într-o filă nouă)</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <p class="site-footer__copy">© {{ year }} Otniel Iacob</p>
+  </div>
 </footer>
